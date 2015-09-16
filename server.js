@@ -4,6 +4,8 @@ var port = process.argv[2] || 9000;
 
 var echoPattern = /^\/echo\/(\d{3})$/i;
 var delayPattern = /^\/delay\/(\d+)$/i;
+var streamPattern = /^\/stream\/(\d+)$/i;
+var cookiesPattern = /^\/cookies$/i;
 
 
 http.createServer(function (request, response) {
@@ -21,6 +23,12 @@ function getRouteHandler(request) {
   }
   if (delayPattern.test(request.url)) {
     return delayHandler;
+  }
+  if (streamPattern.test(request.url)) {
+    return streamHandler;
+  }
+  if (cookiesPattern.test(request.url)) {
+    return cookiesHandler;
   }
   return notFoundHandler;
 }
@@ -46,6 +54,15 @@ function echoHandler(request, response) {
 
 function delayHandler(request, response) {
   var matches = request.url.match(delayPattern);
+  var delay = parseInt(matches[1], 10) * 1000;
+  setTimeout(function () {
+    response.writeHead(200, {'content-type': 'text/plain'});
+    response.end("Delayed for " + delay);
+  }, delay);
+}
+
+function streamHandler(request, response) {
+  var matches = request.url.match(streamPattern);
   var delaySeconds = parseInt(matches[1], 10);
   var counter = 0;
   var interval = setInterval(function () {
@@ -58,6 +75,12 @@ function delayHandler(request, response) {
   }, 1000);
 
   response.writeHead(200, {'content-type': 'text/plain'});
+}
+
+function cookiesHandler(request, response) {
+  response.setHeader('set-cookie', ['alpha=1', 'beta=2'])
+  response.writeHead(200);
+  response.end();
 }
 
 function notFoundHandler(request, response) {
