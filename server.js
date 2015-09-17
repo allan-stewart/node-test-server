@@ -3,6 +3,7 @@ var http = require('http');
 var port = process.argv[2] || 9000;
 
 var echoPattern = /^\/echo\/(\d{3})$/i;
+var headersPattern = /^\/headers$/i;
 var delayPattern = /^\/delay\/(\d+)$/i;
 var streamPattern = /^\/stream\/(\d+)$/i;
 var cookiesPattern = /^\/cookies$/i;
@@ -20,6 +21,9 @@ function getRouteHandler(request) {
   console.log(request.url);
   if (echoPattern.test(request.url)) {
     return echoHandler;
+  }
+  if (headersPattern.test(request.url)) {
+    return headersHandler;
   }
   if (delayPattern.test(request.url)) {
     return delayHandler;
@@ -50,6 +54,11 @@ function echoHandler(request, response) {
     }
     response.end();
   });
+}
+
+function headersHandler(request, response) {
+  response.writeHead(200, {'content-type': 'application/json'});
+  response.end(JSON.stringify(request.headers));
 }
 
 function delayHandler(request, response) {
