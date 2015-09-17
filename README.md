@@ -43,6 +43,35 @@ hello world
 ```
 
 
+## Headers
+
+This endpoint returns all the headers that were provided as a JSON result. Note that due to Node.js, all the header names will be lower cased.
+
+Request details:
+* **HTTP Method:** `GET`
+* **URL Template:** `/headers`
+* **Required Headers:** none
+* **Request Body:** none
+
+Response details:
+* **Status Code:** 200
+* **Response Headers:**
+  * `content-type: application/json`
+* **Response Body:** JSON representation of the headers that were passed in
+
+Example usage (curl):
+```
+$ curl -i http://localhost:9000/headers
+HTTP/1.1 200 OK
+content-type: application/json
+Date: Thu, 17 Sep 2015 22:13:37 GMT
+Connection: keep-alive
+Transfer-Encoding: chunked
+
+{"user-agent":"curl/7.41.0","host":"localhost:9000","accept":"*/*"}
+```
+
+
 ## Delay
 
 This endpoint delays for a specified amount of time and then sends a response.
