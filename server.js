@@ -54,11 +54,11 @@ function echoHandler(request, response) {
 
 function delayHandler(request, response) {
   var matches = request.url.match(delayPattern);
-  var delay = parseInt(matches[1], 10) * 1000;
+  var delay = parseInt(matches[1], 10);
   setTimeout(function () {
     response.writeHead(200, {'content-type': 'text/plain'});
     response.end("Delayed for " + delay);
-  }, delay);
+  }, delay * 1000);
 }
 
 function streamHandler(request, response) {
