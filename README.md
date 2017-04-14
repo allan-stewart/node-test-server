@@ -112,7 +112,7 @@ This endpoint streams data back to the client over a specified number of seconds
 
 Request details:
 * **HTTP Method:** `GET`
-* **URL Template:** `/delay/{secondsToStream}`
+* **URL Template:** `/stream/{secondsToStream}`
 * **Required Headers:** none
 * **Request Body:** none
 
