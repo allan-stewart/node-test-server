@@ -2,6 +2,8 @@ var http = require('http');
 
 var port = process.argv[2] || 9000;
 
+var handlers = [];
+
 http.createServer(function (request, response) {
   var match = handlers.find(function (x) {
     return x.pattern.test(request.url)
@@ -15,7 +17,7 @@ http.createServer(function (request, response) {
 
 console.log('Server running at http://127.0.0.1:' + port);
 
-function echoHandler(request, response, matches) {
+handlers.push({pattern: /^\/echo\/(\d{3})$/i, handler: function (request, response, matches) {
   var responseBody = "";
   request.on('data', function (chunk) {
     responseBody += chunk.toString();
@@ -31,22 +33,22 @@ function echoHandler(request, response, matches) {
     }
     response.end();
   });
-}
+}});
 
-function headersHandler(request, response, matches) {
+handlers.push({pattern: /^\/headers$/i, handler: function (request, response, matches) {
   response.writeHead(200, {'content-type': 'application/json'});
   response.end(JSON.stringify(request.headers));
-}
+}});
 
-function delayHandler(request, response, matches) {
+handlers.push({pattern: /^\/delay\/(\d+)$/i, handler: function (request, response, matches) {
   var delay = parseInt(matches[1], 10);
   setTimeout(function () {
     response.writeHead(200, {'content-type': 'text/plain'});
     response.end("Delayed for " + delay);
   }, delay * 1000);
-}
+}});
 
-function streamHandler(request, response, matches) {
+handlers.push({pattern: /^\/stream\/(\d+)$/i, handler: function (request, response, matches) {
   var delaySeconds = parseInt(matches[1], 10);
   var counter = 0;
   var interval = setInterval(function () {
@@ -59,23 +61,15 @@ function streamHandler(request, response, matches) {
   }, 1000);
 
   response.writeHead(200, {'content-type': 'text/plain'});
-}
+}});
 
-function cookiesHandler(request, response, matches) {
+handlers.push({pattern: /^\/cookies$/i, handler: function (request, response, matches) {
   response.setHeader('set-cookie', ['alpha=1', 'beta=2'])
   response.writeHead(200);
   response.end();
-}
+}});
 
 function notFoundHandler(request, response) {
   response.writeHead(404);
   response.end();
 }
-
-var handlers = [
-  {pattern: /^\/echo\/(\d{3})$/i, handler: echoHandler},
-  {pattern: /^\/headers$/i, handler: headersHandler},
-  {pattern: /^\/delay\/(\d+)$/i, handler: delayHandler},
-  {pattern: /^\/stream\/(\d+)$/i, handler: streamHandler},
-  {pattern: /^\/cookies$/i, handler: cookiesHandler}
-];
