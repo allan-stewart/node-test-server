@@ -1,7 +1,5 @@
 var http = require('http');
-
 var port = process.argv[2] || 9000;
-
 var handlers = [];
 
 http.createServer(function (request, response) {
@@ -15,7 +13,6 @@ http.createServer(function (request, response) {
     response.end();
   }
 }).listen(port, "127.0.0.1");
-
 console.log('Server running at http://127.0.0.1:' + port);
 
 handlers.push({pattern: /^\/echo\/(\d{3})$/i, handler: function (request, response, matches) {
@@ -60,7 +57,6 @@ handlers.push({pattern: /^\/stream\/(\d+)$/i, handler: function (request, respon
       response.end();
     }
   }, 1000);
-
   response.writeHead(200, {'content-type': 'text/plain'});
 }});
 
