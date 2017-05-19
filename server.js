@@ -11,7 +11,8 @@ http.createServer(function (request, response) {
   if (match) {
     match.handler(request, response, request.url.match(match.pattern));
   } else {
-    notFoundHandler(request, response);
+    response.writeHead(404);
+    response.end();
   }
 }).listen(port, "127.0.0.1");
 
@@ -68,8 +69,3 @@ handlers.push({pattern: /^\/cookies$/i, handler: function (request, response, ma
   response.writeHead(200);
   response.end();
 }});
-
-function notFoundHandler(request, response) {
-  response.writeHead(404);
-  response.end();
-}
