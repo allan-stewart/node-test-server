@@ -2,43 +2,20 @@ var http = require('http');
 
 var port = process.argv[2] || 9000;
 
-var echoPattern = /^\/echo\/(\d{3})$/i;
-var headersPattern = /^\/headers$/i;
-var delayPattern = /^\/delay\/(\d+)$/i;
-var streamPattern = /^\/stream\/(\d+)$/i;
-var cookiesPattern = /^\/cookies$/i;
-
-
 http.createServer(function (request, response) {
-  var handler = getRouteHandler(request);
-  handler(request, response);
+  var match = handlers.find(function (x) {
+    return x.pattern.test(request.url)
+  });
+  if (match) {
+    match.handler(request, response, request.url.match(match.pattern));
+  } else {
+    notFoundHandler(request, response);
+  }
 }).listen(port, "127.0.0.1");
 
 console.log('Server running at http://127.0.0.1:' + port);
 
-
-function getRouteHandler(request) {
-  console.log(request.url);
-  if (echoPattern.test(request.url)) {
-    return echoHandler;
-  }
-  if (headersPattern.test(request.url)) {
-    return headersHandler;
-  }
-  if (delayPattern.test(request.url)) {
-    return delayHandler;
-  }
-  if (streamPattern.test(request.url)) {
-    return streamHandler;
-  }
-  if (cookiesPattern.test(request.url)) {
-    return cookiesHandler;
-  }
-  return notFoundHandler;
-}
-
-function echoHandler(request, response) {
-  var matches = request.url.match(echoPattern);
+function echoHandler(request, response, matches) {
   var responseBody = "";
   request.on('data', function (chunk) {
     responseBody += chunk.toString();
@@ -56,13 +33,12 @@ function echoHandler(request, response) {
   });
 }
 
-function headersHandler(request, response) {
+function headersHandler(request, response, matches) {
   response.writeHead(200, {'content-type': 'application/json'});
   response.end(JSON.stringify(request.headers));
 }
 
-function delayHandler(request, response) {
-  var matches = request.url.match(delayPattern);
+function delayHandler(request, response, matches) {
   var delay = parseInt(matches[1], 10);
   setTimeout(function () {
     response.writeHead(200, {'content-type': 'text/plain'});
@@ -70,8 +46,7 @@ function delayHandler(request, response) {
   }, delay * 1000);
 }
 
-function streamHandler(request, response) {
-  var matches = request.url.match(streamPattern);
+function streamHandler(request, response, matches) {
   var delaySeconds = parseInt(matches[1], 10);
   var counter = 0;
   var interval = setInterval(function () {
@@ -86,7 +61,7 @@ function streamHandler(request, response) {
   response.writeHead(200, {'content-type': 'text/plain'});
 }
 
-function cookiesHandler(request, response) {
+function cookiesHandler(request, response, matches) {
   response.setHeader('set-cookie', ['alpha=1', 'beta=2'])
   response.writeHead(200);
   response.end();
@@ -96,3 +71,11 @@ function notFoundHandler(request, response) {
   response.writeHead(404);
   response.end();
 }
+
+var handlers = [
+  {pattern: /^\/echo\/(\d{3})$/i, handler: echoHandler},
+  {pattern: /^\/headers$/i, handler: headersHandler},
+  {pattern: /^\/delay\/(\d+)$/i, handler: delayHandler},
+  {pattern: /^\/stream\/(\d+)$/i, handler: streamHandler},
+  {pattern: /^\/cookies$/i, handler: cookiesHandler}
+];
