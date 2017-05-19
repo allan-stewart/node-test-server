@@ -12,11 +12,11 @@ http.createServer(function (request, response) {
     response.writeHead(404);
     response.end();
   }
-}).listen(port, "127.0.0.1");
+}).listen(port, '127.0.0.1');
 console.log('Server running at http://127.0.0.1:' + port);
 
 handlers.push({pattern: /^\/echo\/(\d{3})$/i, handler: function (request, response, matches) {
-  var responseBody = "";
+  var responseBody = '';
   request.on('data', function (chunk) {
     responseBody += chunk.toString();
   });
@@ -42,7 +42,7 @@ handlers.push({pattern: /^\/delay\/(\d+)$/i, handler: function (request, respons
   var delay = parseInt(matches[1], 10);
   setTimeout(function () {
     response.writeHead(200, {'content-type': 'text/plain'});
-    response.end("Delayed for " + delay);
+    response.end('Delayed for ' + delay);
   }, delay * 1000);
 }});
 
